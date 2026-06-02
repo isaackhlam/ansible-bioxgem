@@ -15,6 +15,7 @@
         name: "{{ user_name }}"
         skeleton: /etc/skel
         create_home: yes
+        shell: /bin/bash
         password: "{{ user_password | password_hash('sha512') }}"
 
     - name: Create /data/{{ user_name }}
