@@ -54,7 +54,23 @@
           # <<< ansible user setup <<<
         marker: "# {mark} ANSIBLE MANAGED BLOCK"
 
-    - name: Configure conda in .bashrc
+      - name: Create cache directory
+        ansible.builtin.file:
+          path: "/data/{{ user_name }}/.cache"
+          state: directory
+          owner: "{{ user_name }}"
+          group: "{{ user_name }}"
+          mode: '0755'
+
+      - name: Create Hugging Face cache directory
+        ansible.builtin.file:
+          path: "/data/{{ user_name }}/.cache/huggingface"
+          state: directory
+          owner: "{{ user_name }}"
+          group: "{{ user_name }}"
+          mode: '0755'
+
+    - name: Configure conda and cache in .bashrc
       ansible.builtin.blockinfile:
         path: "/home/{{ user_name }}/.bashrc"
         block: |
@@ -64,4 +80,6 @@
           export CONDA_ENVS_PATH="/data/{{ user_name }}/conda/envs"
           . /opt/anaconda3/etc/profile.d/conda.sh
           # <<< conda initialize <<<
+          export XDG_CACHE_HOME="/data/{{ user_name }}/.cache"
+          export HF_HOME="/data/{{ user_name }}/.cache/huggingface"
         marker: "# {mark} ANSIBLE MANAGED BLOCK"
