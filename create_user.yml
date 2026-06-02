@@ -15,16 +15,14 @@
         name: "{{ user_name }}"
         skeleton: /etc/skel
         create_home: yes
-
-    - name: Set password via passwd
-      ansible.builtin.shell: |
-        echo -e "{{ user_password }}\n{{ user_password }}" | passwd {{ user_name }}
+        password: "{{ user_password | password_hash('sha512') }}"
 
     - name: Create /data/{{ user_name }}
       ansible.builtin.file:
         path: "/data/{{ user_name }}"
         state: directory
         owner: "{{ user_name }}"
+        group: "{{ user_name }}"
         mode: '0755'
 
     - name: Create /data/{{ user_name }}/conda/pkgs (with parents)
@@ -32,6 +30,7 @@
         path: "/data/{{ user_name }}/conda/pkgs"
         state: directory
         owner: "{{ user_name }}"
+        group: "{{ user_name }}"
         mode: '0755'
 
     - name: Create /data/{{ user_name }}/conda/envs (with parents)
@@ -39,11 +38,15 @@
         path: "/data/{{ user_name }}/conda/envs"
         state: directory
         owner: "{{ user_name }}"
+        group: "{{ user_name }}"
         mode: '0755'
 
-    - name: Configure .bash_profile to cd to /data/$USER
+    - name: Configure .profile to cd to /data/$USER
       ansible.builtin.blockinfile:
-        path: "/home/{{ user_name }}/.bash_profile"
+        path: "/home/{{ user_name }}/.profile"
+        create: true
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
         block: |
           # >>> ansible user setup >>>
           cd /data/{{ user_name }}
